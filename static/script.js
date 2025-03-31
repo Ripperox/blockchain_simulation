@@ -1,9 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
     fetchChain();
     const blockDataInput = document.getElementById("blockData");
-    blockDataInput.addEventListener("keypress", (event) => {
-        if (event.key === "Enter") mineBlock();
-    });
+    if (blockDataInput) {
+        blockDataInput.addEventListener("keypress", (event) => {
+            if (event.key === "Enter") mineBlock();
+        });
+    }
+
+    // Add event listener for the mine button if it exists
+    const mineButton = document.getElementById("mineButton");
+    if (mineButton) {
+        mineButton.addEventListener("click", mineBlock);
+    }
+
+    // Add event listener for the fix button if it exists
+    const fixButton = document.getElementById("fixButton");
+    if (fixButton) {
+        fixButton.addEventListener("click", fixBlockchain);
+    }
 });
 
 async function fetchChain() {
@@ -18,75 +32,60 @@ async function fetchChain() {
 }
 
 function displayBlocks(chain) {
-    const container = document.getElementById("blockchainContainer");
+    // Find the container - try both potential IDs/classes
+    const container = document.getElementById("blockchainContainer") || document.querySelector(".blockchain-grid");
+    if (!container) {
+        console.error("Could not find blockchain container");
+        return;
+    }
+    
     container.innerHTML = "";
 
     chain.forEach((block) => {
         const blockDiv = document.createElement("div");
         blockDiv.classList.add("block");
+        // Store original data for validation
         blockDiv.dataset.index = block.index;
         blockDiv.dataset.hash = block.hash;
         blockDiv.dataset.previousHash = block.previous_hash;
         blockDiv.dataset.nonce = block.nonce;
         blockDiv.dataset.timestamp = block.timestamp;
+        blockDiv.dataset.originalData = block.data;
 
         blockDiv.innerHTML = `
             <h3>Block #${block.index}</h3>
-            <p><strong>Prev:</strong> ${block.previous_hash.slice(0, 8)}...</p>
+            <p><strong>Prev Hash:</strong> <span class="previous-hash">${block.previous_hash.slice(0, 8)}...</span></p>
             <input type="text" class="data" value="${block.data}">
             <p><strong>Nonce:</strong> ${block.nonce}</p>
             <p><strong>Hash:</strong> <span class="hash" data-full-hash="${block.hash}">${block.hash.slice(0, 8)}...</span></p>
         `;
 
         const dataInput = blockDiv.querySelector(".data");
-        const hashSpan = blockDiv.querySelector(".hash");
-
-        // Option 1: Client-side hash recalculation (default behavior)
-        dataInput.addEventListener("input", async () => {
-            const newData = dataInput.value;
-            const newHash = await computeHash(
-                blockDiv.dataset.index,
-                blockDiv.dataset.timestamp,
-                newData,
-                blockDiv.dataset.previousHash,
-                blockDiv.dataset.nonce
-            );
-            blockDiv.dataset.hash = newHash;
-            hashSpan.dataset.fullHash = newHash;
-            hashSpan.textContent = `${newHash.slice(0, 8)}...`;
+        
+        // Make sure input changes trigger validation
+        dataInput.addEventListener("input", () => {
             validateBlockchain();
         });
-
-        // Option 2: Persist changes to server (uncomment to use)
-        /*
-        dataInput.addEventListener("input", async () => {
-            const newData = dataInput.value;
-            try {
-                const response = await fetch("/update_block", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ index: parseInt(blockDiv.dataset.index), data: newData }),
-                });
-                if (response.ok) {
-                    fetchChain(); // Refresh entire chain from server
-                } else {
-                    console.error("Failed to update block:", await response.json());
-                }
-            } catch (error) {
-                console.error("Error updating block:", error);
-            }
-        });
-        */
 
         container.appendChild(blockDiv);
     });
 
+    // Initial validation
     validateBlockchain();
 }
 
 async function mineBlock() {
-    const blockData = document.getElementById("blockData").value.trim();
-    if (!blockData) return alert("Please enter block data!");
+    const blockDataInput = document.getElementById("blockData");
+    if (!blockDataInput) {
+        console.error("Block data input not found");
+        return;
+    }
+    
+    const blockData = blockDataInput.value.trim();
+    if (!blockData) {
+        alert("Please enter block data!");
+        return;
+    }
 
     try {
         const response = await fetch("/mine", {
@@ -94,49 +93,85 @@ async function mineBlock() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ data: blockData }),
         });
+        
         if (response.ok) {
-            document.getElementById("blockData").value = ""; // Clear input
-            fetchChain();
+            blockDataInput.value = ""; // Clear input
+            fetchChain(); // Refresh the chain
         } else {
-            console.error("Mining failed:", await response.json());
+            const errorData = await response.json();
+            console.error("Mining failed:", errorData);
+            alert("Mining failed: " + (errorData.error || "Unknown error"));
         }
     } catch (error) {
         console.error("Error mining block:", error);
+        alert("Error mining block: " + error.message);
     }
 }
 
 async function validateBlockchain() {
     const blocks = document.querySelectorAll(".block");
-    let isChainValid = true;
-
+    if (blocks.length === 0) return;
+    
+    // Always mark genesis block as valid
+    blocks[0].classList.remove("invalid");
+    blocks[0].classList.add("valid");
+    
+    let chainBroken = false;
+    
+    // For blocks beyond genesis, validate each one
     for (let i = 1; i < blocks.length; i++) {
-        const prevBlock = blocks[i - 1];
-        const currBlock = blocks[i];
-
-        const expectedPrevHash = prevBlock.dataset.hash;
-        const actualPrevHash = currBlock.dataset.previousHash;
-
-        const recalculatedHash = await computeHash(
-            currBlock.dataset.index,
-            currBlock.dataset.timestamp,
-            currBlock.querySelector(".data").value,
-            actualPrevHash,
-            currBlock.dataset.nonce
-        );
-
-        if (actualPrevHash !== expectedPrevHash || recalculatedHash !== currBlock.dataset.hash) {
-            currBlock.classList.add("invalid");
-            currBlock.classList.remove("valid");
-            isChainValid = false;
-            for (let j = i + 1; j < blocks.length; j++) {
-                blocks[j].classList.add("invalid");
-                blocks[j].classList.remove("valid");
-            }
-            break;
-        } else {
-            currBlock.classList.remove("invalid");
-            currBlock.classList.add("valid");
+        const currentBlock = blocks[i];
+        const previousBlock = blocks[i-1];
+        
+        // If the chain is already broken, mark all subsequent blocks as invalid
+        if (chainBroken) {
+            currentBlock.classList.remove("valid");
+            currentBlock.classList.add("invalid");
+            continue;
         }
+        
+        // Get current values
+        const currentData = currentBlock.querySelector(".data").value;
+        const storedPrevHash = currentBlock.dataset.previousHash;
+        const previousBlockHash = previousBlock.dataset.hash;
+        
+        // First check: Does this block point to the correct previous hash?
+        // This should always be true unless the blockchain structure itself is broken
+        const prevHashValid = storedPrevHash === previousBlockHash;
+        
+        // Second check: Has the data been tampered with?
+        const dataChanged = currentData !== currentBlock.dataset.originalData;
+        
+        if (!prevHashValid || dataChanged) {
+            // Mark as invalid
+            currentBlock.classList.remove("valid");
+            currentBlock.classList.add("invalid");
+            chainBroken = true; // Break the chain for all subsequent blocks
+        } else {
+            // Mark as valid
+            currentBlock.classList.remove("invalid");
+            currentBlock.classList.add("valid");
+        }
+    }
+}
+
+async function fixBlockchain() {
+    try {
+        const response = await fetch("/fix_chain", { 
+            method: "POST" 
+        });
+        
+        if (response.ok) {
+            console.log("Chain fixed successfully");
+            fetchChain(); // Refresh the chain
+        } else {
+            const errorData = await response.json();
+            console.error("Failed to fix chain:", errorData);
+            alert("Failed to fix chain: " + (errorData.error || "Unknown error"));
+        }
+    } catch (error) {
+        console.error("Error fixing chain:", error);
+        alert("Error fixing chain: " + error.message);
     }
 }
 
@@ -145,25 +180,19 @@ async function computeHash(index, timestamp, data, previousHash, nonce) {
         const response = await fetch("/compute_hash", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ index, timestamp, data, previous_hash: previousHash, nonce }),
+            body: JSON.stringify({ 
+                index, 
+                timestamp, 
+                data, 
+                previous_hash: previousHash, 
+                nonce 
+            }),
         });
+        
         const result = await response.json();
         return result.hash;
     } catch (error) {
         console.error("Error computing hash:", error);
         return "";
-    }
-}
-
-async function fixBlockchain() {
-    try {
-        const response = await fetch("/fix_chain", { method: "POST" });
-        if (response.ok) {
-            fetchChain();
-        } else {
-            console.error("Failed to fix chain:", await response.json());
-        }
-    } catch (error) {
-        console.error("Error fixing chain:", error);
     }
 }
