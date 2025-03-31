@@ -24,6 +24,7 @@ Make sure **Docker** is installed and running.
 1️⃣ **Clone the repository:**  
 ```sh
 git clone https://github.com/Ripperox/blockchain_simulation.git
+cd blockchain_simulation
 ```
   
 2️⃣ **Build the Docker image:**  
