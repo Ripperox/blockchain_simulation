@@ -22,7 +22,7 @@ Make sure **Docker** is installed and running.
 
 1️⃣ **Clone the repository:**  
 ```sh
-git clone https://github.com/<your-github-username>/blockchain-app.git
+git clone https://github.com/Ripperox/blockchain-app.git
 cd blockchain-app
 ```
   
