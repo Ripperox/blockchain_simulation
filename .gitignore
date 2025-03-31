@@ -3,6 +3,5 @@ __pycache__/
 *.pyo
 venv/
 .env
-Dockerfile
 *.tar
 node_modules/
