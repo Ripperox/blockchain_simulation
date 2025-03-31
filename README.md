@@ -23,18 +23,17 @@ Make sure **Docker** is installed and running.
 
 1️⃣ **Clone the repository:**  
 ```sh
-git clone https://github.com/Ripperox/blockchain-app.git
-cd blockchain-app
+git clone https://github.com/Ripperox/blockchain_simulation.git
 ```
   
 2️⃣ **Build the Docker image:**  
 ```sh
-docker build -t blockchain-app .
+docker build -t blockchain-simulation .
 ```
 
 3️⃣ **Run the Docker container:**  
 ```sh
-docker run -p 5000:5000 blockchain-app
+docker run -p 5000:5000 blockchain-simulation
 ```
 
 4️⃣ **Access the app in your browser:**  
