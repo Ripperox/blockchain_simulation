@@ -1,0 +1,209 @@
+/* Reset and modern font */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #0f1419, #1e2a38);
+  color: #e0e0e0;
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.container {
+  width: 90%;
+  max-width: 1200px;
+  padding: 30px;
+  background: rgba(20, 30, 40, 0.9);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Header styling */
+header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #00d1b2;
+  letter-spacing: 1px;
+}
+
+header p {
+  font-size: 1rem;
+  color: #a0a0a0;
+}
+
+/* Control panel */
+.control-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+input {
+  padding: 12px 15px;
+  font-size: 1rem;
+  border: 1px solid #2e3b4e;
+  border-radius: 8px;
+  background: #1e2a38;
+  color: #e0e0e0;
+  width: 250px;
+  transition: border-color 0.3s ease;
+}
+
+input:focus {
+  border-color: #00d1b2;
+  outline: none;
+}
+
+.btn {
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: #00d1b2;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #00b89c;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: #4a5e7a;
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  background: #3b4a60;
+  transform: translateY(-2px);
+}
+
+/* Blockchain grid */
+.blockchain-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  background: rgba(30, 42, 56, 0.5);
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.block {
+  background: rgba(40, 55, 75, 0.8);
+  border: 2px solid #2e3b4e;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.block:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.block.valid {
+  border-color: #00d1b2;
+  box-shadow: 0 0 15px rgba(0, 209, 178, 0.5);
+}
+
+.block.invalid {
+  border-color: #ff5555;
+  box-shadow: 0 0 15px rgba(255, 85, 85, 0.5);
+}
+
+.block h3 {
+  font-size: 1.25rem;
+  margin-bottom: 15px;
+  color: #00d1b2;
+}
+
+.block p {
+  font-size: 0.9rem;
+  margin: 5px 0;
+  word-break: break-all;
+}
+
+/* Tooltip for full hash */
+.hash {
+  position: relative;
+  cursor: pointer;
+  color: #00d1b2; /* Match theme */
+}
+
+.hash:hover::after {
+  content: attr(data-full-hash);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e2a38;
+  color: #e0e0e0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.hash:hover::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: -6px;
+  border: 6px solid transparent;
+  border-top-color: #1e2a38;
+  z-index: 10;
+}
+
+.block input.data {
+  width: 100%;
+  margin: 10px 0;
+  background: #2e3b4e;
+  border: none;
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+  .input-group {
+      flex-direction: column;
+      width: 100%;
+  }
+  input {
+      width: 100%;
+  }
+  .btn {
+      width: 100%;
+  }
+}

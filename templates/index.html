@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blockchain Simulator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Blockchain Simulator</h1>
+            <p>Explore and interact with a simple blockchain in real-time</p>
+        </header>
+        <section class="control-panel">
+            <div class="input-group">
+                <input type="text" id="blockData" placeholder="Enter block data..." />
+                <button onclick="mineBlock()" class="btn btn-primary">Mine Block</button>
+            </div>
+            <button onclick="fixBlockchain()" class="btn btn-secondary">Fix Blockchain</button>
+        </section>
+        <section id="blockchainContainer" class="blockchain-grid"></section>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
