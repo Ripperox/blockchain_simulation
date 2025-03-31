@@ -2,7 +2,8 @@
 
 ## **📜 Blockchain Simulator**
 A **simple blockchain simulator** built with **Flask** that allows users to mine new blocks dynamically. This project includes a **modern UI** and supports **Dockerization** for seamless deployment.  
-![image](https://github.com/user-attachments/assets/50d4ffc2-7a96-46ca-a8f8-55983fc1eb1c)
+![image](https://github.com/user-attachments/assets/7738df2a-f807-470a-a2d4-7c4cc345b7be)
+
 
 ---
 
@@ -22,18 +23,18 @@ Make sure **Docker** is installed and running.
 
 1️⃣ **Clone the repository:**  
 ```sh
-git clone https://github.com/Ripperox/blockchain-app.git
-cd blockchain-app
+git clone https://github.com/Ripperox/blockchain_simulation.git
+cd blockchain_simulation
 ```
   
 2️⃣ **Build the Docker image:**  
 ```sh
-docker build -t blockchain-app .
+docker build -t blockchain-simulation .
 ```
 
 3️⃣ **Run the Docker container:**  
 ```sh
-docker run -p 5000:5000 blockchain-app
+docker run -p 5000:5000 blockchain-simulation
 ```
 
 4️⃣ **Access the app in your browser:**  
