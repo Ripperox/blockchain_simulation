@@ -2,7 +2,8 @@
 
 ## **📜 Blockchain Simulator**
 A **simple blockchain simulator** built with **Flask** that allows users to mine new blocks dynamically. This project includes a **modern UI** and supports **Dockerization** for seamless deployment.  
-![image](https://github.com/user-attachments/assets/50d4ffc2-7a96-46ca-a8f8-55983fc1eb1c)
+![image](https://github.com/user-attachments/assets/7738df2a-f807-470a-a2d4-7c4cc345b7be)
+
 
 ---
 
