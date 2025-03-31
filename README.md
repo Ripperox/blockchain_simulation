@@ -72,11 +72,6 @@ python app.py
 
 ---
 
-## **📷 UI Preview**  
-*(Optional: Add a screenshot of the UI here to make it more appealing.)*
-
----
-
 ## **📄 File Structure**
 ```
 blockchain-app/
@@ -93,21 +88,8 @@ blockchain-app/
 
 ---
 
-## **📝 License**
-This project is **MIT Licensed** – you are free to modify and use it as you wish.  
-
----
 
 ## **🤝 Contribution**
 Feel free to **fork** this repo, create a new branch, and submit a **pull request**.  
-
 ---
 
-## **📧 Contact**
-For questions or collaboration, reach out via:  
-📩 **Email:** your-email@example.com  
-🌍 **GitHub:** [your-github-profile](https://github.com/your-github-username)  
-
----
-
-This README is **clean, professional, and informative.** Let me know if you want any tweaks! 🚀
