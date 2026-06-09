@@ -1,26 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Blockchain Simulator</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BlockChain Terminal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Blockchain Simulator</h1>
-            <p>Explore and interact with a simple blockchain in real-time</p>
-        </header>
-        <section class="control-panel">
-            <div class="input-group">
-                <input type="text" id="blockData" placeholder="Enter block data..." />
-                <button onclick="mineBlock()" class="btn btn-primary">Mine Block</button>
-            </div>
-            <button onclick="fixBlockchain()" class="btn btn-secondary">Fix Blockchain</button>
-        </section>
-        <section id="blockchainContainer" class="blockchain-grid"></section>
+  <!-- Header Stats Bar -->
+  <header class="site-header">
+    <div class="header-brand">
+      <span class="brand-icon">⬡</span>
+      <span class="brand-name">BlockChain<span class="brand-accent">Terminal</span></span>
     </div>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <div class="stats-bar">
+      <div class="stat-card" id="stat-blocks">
+        <div class="stat-value" id="stat-blocks-val">—</div>
+        <div class="stat-label">Blocks Mined</div>
+      </div>
+      <div class="stat-card" id="stat-txs">
+        <div class="stat-value" id="stat-txs-val">—</div>
+        <div class="stat-label">Transactions</div>
+      </div>
+      <div class="stat-card" id="stat-hashrate">
+        <div class="stat-value" id="stat-hashrate-val">—</div>
+        <div class="stat-label">Hash Rate</div>
+      </div>
+      <div class="stat-card" id="stat-diff">
+        <div class="stat-value" id="stat-diff-val">—</div>
+        <div class="stat-label">Difficulty</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main 3-column layout -->
+  <main class="main-grid">
+
+    <!-- LEFT COLUMN: Mine + Mempool -->
+    <aside class="col-left">
+
+      <!-- Mine Panel -->
+      <section class="panel" id="mine-panel">
+        <div class="panel-header">
+          <span class="panel-icon">⛏</span>
+          <span class="panel-title">Mine Block</span>
+          <span class="panel-badge" id="mempool-badge">0 tx pending</span>
+        </div>
+        <div class="panel-body">
+          <button class="btn-mine" id="btn-mine">
+            <span id="mine-btn-text">START MINING</span>
+          </button>
+
+          <!-- Mining progress -->
+          <div class="mining-progress hidden" id="mining-progress">
+            <div class="progress-bar-wrap">
+              <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="mining-meta">
+              <span class="mining-label">Nonce</span>
+              <span class="mono" id="prog-nonce">0</span>
+            </div>
+            <div class="mining-meta">
+              <span class="mining-label">Speed</span>
+              <span class="mono" id="prog-speed">0 H/s</span>
+            </div>
+            <div class="mining-meta">
+              <span class="mining-label">Difficulty</span>
+              <span class="mono" id="prog-diff">—</span>
+            </div>
+            <div class="hash-stream" id="hash-stream">
+              <span class="hash-cursor">▌</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Add Transaction Panel -->
+      <section class="panel" id="tx-panel">
+        <div class="panel-header">
+          <span class="panel-icon">⇄</span>
+          <span class="panel-title">Add Transaction</span>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label class="form-label">Sender</label>
+            <input class="form-input mono" id="tx-sender" type="text" placeholder="0xSenderAddress..." />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Recipient</label>
+            <input class="form-input mono" id="tx-recipient" type="text" placeholder="0xRecipientAddress..." />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Amount</label>
+            <input class="form-input" id="tx-amount" type="number" step="0.0001" placeholder="0.0000" />
+          </div>
+          <button class="btn-secondary" id="btn-add-tx">BROADCAST TX</button>
+          <div class="tx-feedback hidden" id="tx-feedback"></div>
+        </div>
+      </section>
+
+      <!-- Mempool Panel -->
+      <section class="panel" id="mempool-panel">
+        <div class="panel-header">
+          <span class="panel-icon">◎</span>
+          <span class="panel-title">Mempool</span>
+          <span class="panel-badge" id="mempool-count">0 pending</span>
+        </div>
+        <div class="panel-body">
+          <div class="mempool-list" id="mempool-list">
+            <div class="mempool-empty">No pending transactions</div>
+          </div>
+        </div>
+      </section>
+
+    </aside>
+
+    <!-- CENTER COLUMN: Block Chain -->
+    <section class="col-center">
+      <div class="panel chain-panel">
+        <div class="panel-header">
+          <span class="panel-icon">⛓</span>
+          <span class="panel-title">Blockchain</span>
+          <span class="panel-badge" id="chain-length-badge">0 blocks</span>
+        </div>
+        <div class="chain-container" id="chain-container">
+          <!-- blocks rendered here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: Network Nodes -->
+    <aside class="col-right">
+      <section class="panel" id="nodes-panel">
+        <div class="panel-header">
+          <span class="panel-icon">⬡</span>
+          <span class="panel-title">Network Nodes</span>
+        </div>
+        <div class="panel-body">
+          <div class="nodes-list" id="nodes-list">
+            <!-- nodes rendered here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Log Panel -->
+      <section class="panel" id="log-panel">
+        <div class="panel-header">
+          <span class="panel-icon">▸</span>
+          <span class="panel-title">Event Log</span>
+        </div>
+        <div class="panel-body">
+          <div class="log-list" id="log-list"></div>
+        </div>
+      </section>
+    </aside>
+
+  </main>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
