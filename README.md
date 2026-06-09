@@ -1,96 +1,69 @@
----
+# Blockchain Simulator
 
-## **📜 Blockchain Simulator**
-A **simple blockchain simulator** built with **Flask** that allows users to mine new blocks dynamically. This project includes a **modern UI** and supports **Dockerization** for seamless deployment.  
+A real-time blockchain simulator built with Flask and Socket.IO. Mine blocks, watch live PoW progress, manage a mempool, and observe a 3-node peer network — all in the browser.
+
 ![image](https://github.com/user-attachments/assets/7738df2a-f807-470a-a2d4-7c4cc345b7be)
 
+## Features
 
----
+- **Real-time mining** via WebSocket — watch the nonce counter, hash attempts/sec, and current hash animate as the block is mined
+- **Mempool** — submit transactions (sender/recipient/amount), which get batched into the next mined block
+- **Merkle tree** — each block computes a Merkle root from its transaction hashes
+- **Dynamic difficulty** — adjusts every 10 blocks to target a 10-second block time
+- **3-node network simulation** — alpha/beta/gamma nodes sync via longest-chain rule after each mine
+- **Stats dashboard** — total blocks, avg block time, hash rate, current difficulty
 
-## **🚀 Features**
-✅ Mine new blocks dynamically  
-✅ Modern & sleek **dark-themed UI**  
-✅ Blockchain visualization  
-✅ Dockerized for easy deployment  
-✅ REST API for blockchain interactions  
+## Stack
 
----
+- **Backend:** Python, Flask, Flask-SocketIO, eventlet
+- **Frontend:** Vanilla JS with Socket.IO client, JetBrains Mono terminal aesthetic
 
-## **🛠 Installation & Usage**
+## Installation
 
-### **🔹 Option 1: Run with Docker (Recommended)**
-Make sure **Docker** is installed and running.
+### Option 1: Docker
 
-1️⃣ **Clone the repository:**  
 ```sh
 git clone https://github.com/Ripperox/blockchain_simulation.git
 cd blockchain_simulation
-```
-  
-2️⃣ **Build the Docker image:**  
-```sh
 docker build -t blockchain-simulation .
-```
-
-3️⃣ **Run the Docker container:**  
-```sh
 docker run -p 5000:5000 blockchain-simulation
 ```
 
-4️⃣ **Access the app in your browser:**  
-Open **[http://localhost:5000](http://localhost:5000)** 🚀  
+Open [http://localhost:5000](http://localhost:5000)
 
----
+### Option 2: Local
 
-### **🔹 Option 2: Run Locally Without Docker**
-Make sure you have **Python 3.8+** installed.  
-
-1️⃣ **Create a virtual environment (optional but recommended)**  
 ```sh
 python -m venv venv
-source venv/bin/activate  # On Windows use: venv\Scripts\activate
-```
-
-2️⃣ **Install dependencies**  
-```sh
+source venv/bin/activate
 pip install -r requirements.txt
-```
-
-3️⃣ **Run the application**  
-```sh
 python app.py
 ```
 
-4️⃣ Open **[http://localhost:5000](http://localhost:5000)** in your browser.
+Open [http://localhost:5000](http://localhost:5000)
 
----
+## API Endpoints
 
-## **📡 API Endpoints**
-| Method | Endpoint          | Description               |
-|--------|------------------|---------------------------|
-| GET    | `/blocks`        | Get all mined blocks      |
-| POST   | `/mine`          | Mine a new block          |
+| Method | Endpoint            | Description                        |
+|--------|--------------------|------------------------------------|
+| GET    | `/get_chain`        | Full blockchain with transactions  |
+| POST   | `/mine`             | Start async mining (WebSocket)     |
+| POST   | `/add_transaction`  | Add tx to mempool                  |
+| GET    | `/get_mempool`      | Pending transactions               |
+| GET    | `/get_stats`        | Network stats                      |
+| GET    | `/get_nodes`        | 3-node network status              |
 
----
+## File Structure
 
-## **📄 File Structure**
 ```
-blockchain-app/
-│── app.py                # Flask backend
-│── Dockerfile            # Docker build instructions
-│── requirements.txt      # Python dependencies
-│── templates/
-│   ├── index.html        # Frontend UI
-│── static/
-│   ├── style.css         # UI styling
-│   ├── script.js         # Frontend logic
-│── README.md             # This file
+blockchain_simulation/
+├── app.py              # Flask backend + SocketIO + blockchain logic
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+├── templates/
+│   └── index.html
+└── static/
+    ├── style.css
+    └── script.js
 ```
-
----
-
-
-## **🤝 Contribution**
-Feel free to **fork** this repo, create a new branch, and submit a **pull request**.  
----
-
