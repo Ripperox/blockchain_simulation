@@ -230,16 +230,48 @@ class Blockchain:
             self._adjust_difficulty()
             return block
 
+    @staticmethod
+    def _recompute_tx_hash(tx: dict) -> str:
+        """Recompute a transaction's hash from its contents, matching
+        Transaction.__post_init__. Used to detect tampering with tx fields."""
+        raw = f"{tx['sender']}{tx['recipient']}{tx['amount']}{tx['timestamp']}"
+        return hashlib.sha256(raw.encode()).hexdigest()
+
     def is_valid(self) -> bool:
         for i in range(1, len(self.chain)):
             cur = self.chain[i]
             prev = self.chain[i - 1]
+
+            # 1. Linkage: this block must point at the previous block's hash.
             if cur["previous_hash"] != prev["hash"]:
                 return False
-            tx_hashes = [t["tx_hash"] for t in cur["transactions"]]
-            merkle_root = MerkleTree.compute_root(tx_hashes)
-            if merkle_root != cur["merkle_root"]:
+
+            # 2. Transaction integrity: recompute each tx hash from its
+            #    contents. Catches tampering with sender/recipient/amount
+            #    even if the stored tx_hash was left unchanged.
+            tx_hashes = []
+            for tx in cur["transactions"]:
+                if self._recompute_tx_hash(tx) != tx["tx_hash"]:
+                    return False
+                tx_hashes.append(tx["tx_hash"])
+
+            # 3. Merkle root must match the (now-verified) transaction hashes.
+            if MerkleTree.compute_root(tx_hashes) != cur["merkle_root"]:
                 return False
+
+            # 4. Proof-of-Work: recompute the block hash and confirm it both
+            #    matches the stored hash and meets the difficulty target.
+            transactions_root = hashlib.sha256("".join(tx_hashes).encode()).hexdigest()
+            recomputed = compute_block_hash(
+                cur["index"], transactions_root, cur["merkle_root"],
+                cur["timestamp"], cur["previous_hash"], cur["nonce"],
+                cur["miner"], cur["difficulty"]
+            )
+            if recomputed != cur["hash"]:
+                return False
+            if not cur["hash"].startswith("0" * cur["difficulty"]):
+                return False
+
         return True
 
     def replace_chain(self, new_chain: list) -> bool:

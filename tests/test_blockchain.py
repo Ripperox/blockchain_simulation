@@ -372,6 +372,37 @@ def test_breaking_previous_hash_linkage_is_detected():
     assert node.is_valid() is False
 
 
+def test_tampering_with_tx_amount_alone_is_detected():
+    """Changing an amount WITHOUT updating its tx_hash must be caught:
+    is_valid recomputes each tx hash from its contents."""
+    node = fresh_node()
+    mine_n(node, 2)
+    assert node.is_valid() is True
+    # Leave tx_hash/merkle_root/block hash untouched — only the amount changes.
+    node.chain[1]["transactions"][0]["amount"] = 999999.0
+    assert node.is_valid() is False
+
+
+def test_tampering_with_tx_amount_and_rehashing_is_detected():
+    """Even if an attacker updates the tx_hash to match the new amount,
+    the merkle root no longer matches."""
+    node = fresh_node()
+    mine_n(node, 2)
+    tx = node.chain[1]["transactions"][0]
+    tx["amount"] = 999999.0
+    tx["tx_hash"] = node._recompute_tx_hash(tx)  # now tx_hash matches contents
+    assert node.is_valid() is False  # merkle root still mismatches
+
+
+def test_tampering_with_block_nonce_breaks_pow():
+    """Mutating the nonce invalidates the recomputed block hash."""
+    node = fresh_node()
+    mine_n(node, 2)
+    assert node.is_valid() is True
+    node.chain[1]["nonce"] += 1
+    assert node.is_valid() is False
+
+
 # ---------------------------------------------------------------------------
 # Dynamic difficulty
 # ---------------------------------------------------------------------------
