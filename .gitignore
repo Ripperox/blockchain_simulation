@@ -1,7 +1,18 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
 venv/
+.venv/
 .env
+.pytest_cache/
+
+# Packaging / archives
 *.tar
+
+# Node / Playwright
 node_modules/
+test-results/
+playwright-report/
+playwright/.cache/
+blob-report/
