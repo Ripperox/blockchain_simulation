@@ -3,6 +3,7 @@ from flask_socketio import SocketIO, emit
 import hashlib
 import time
 import random
+import os
 import string
 import threading
 from dataclasses import dataclass, field, asdict
@@ -415,4 +416,5 @@ def on_connect():
 
 
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True, allow_unsafe_werkzeug=True)
+    port = int(os.environ.get("PORT", 5000))
+    socketio.run(app, host="0.0.0.0", port=port, debug=False, allow_unsafe_werkzeug=True)
